@@ -178,8 +178,7 @@ var updatePosition = function () {
 		
 	/** 
 	 * Update the monsters position
-	 */
-	 		
+	 */	 		
 	for (var i = 0, tempLength = monsterGroup.length; i < tempLength; i++) {
 		monsterGroup[i].y = monsterGroup[i].y + monsterGroup[i].speed * elapsed;
 	}
@@ -205,19 +204,19 @@ var updatePosition = function () {
 	
 	// check the hit and remove the hit monster and bullet
 	for (i = 0, bulletsGroupLen = bulletsGroup.length; i < bulletsGroupLen; i++) {
-		for (var j = 0, monsterGroupLen = monsterGroup.length; j < monsterGroup.length; j++) {
-	        if ((monsterGroup[j]) &&
+		for (var j = 0, monsterGroupLen = monsterGroup.length; j < monsterGroupLen; j++) {
+			if ((monsterGroup[j]) &&
 			(bulletsGroup[i].x + 6 >= monsterGroup[j].x) &&
 			(monsterGroup[j].x + 32 >= bulletsGroup[i].x) &&
 			(bulletsGroup[i].y + 6 >= monsterGroup[j].y) &&
 			(monsterGroup[j].y + 32 >= bulletsGroup[i].y))	
 			{				
-		boomOfMonsterGroup.push(new boomOfMonster(monsterGroup[j].x, monsterGroup[j].y, (Date.now())));
-		monsterGroup[j] = null;
-		monsterCaught++;
-		delete bulletsGroup[i];
-		break;
-	}
+				boomOfMonsterGroup.push(new boomOfMonster(monsterGroup[j].x, monsterGroup[j].y, (Date.now())));
+				monsterGroup[j] = null;
+				monsterCaught++;
+				delete bulletsGroup[i];
+				break;
+			}
 		}
 		
 
@@ -242,7 +241,7 @@ var createBullets = function () {
 	var distanceOfBulletAppearTime = (Date.now() - lastBulletAppearTime);
 	//console.log("elapsed: " + distanceOfBulletAppearTime);
 	if (distanceOfBulletAppearTime > bulletAppearFrequency) {
-	    var bulletNew = new bullet(hero.x + 13, hero.y);
+		var bulletNew = new bullet(hero.x + 13, hero.y);
 		bulletsGroup.push(bulletNew);
 		lastBulletAppearTime = Date.now();
 	}		
@@ -251,15 +250,15 @@ var createBullets = function () {
 
 var monsterTouchHeroCheck = function () {
 	for (var i = 0; i < monsterGroup.length; i ++) {
-	    if ((hero.x + 32 >= monsterGroup[i].x) &&
-	    (monsterGroup[i].x + 32 >= hero.x) &&
-	    (hero.y + 32 >= monsterGroup[i].y) &&
-	    (monsterGroup[i].y + 32 >= hero.y))
+		if ((hero.x + 32 >= monsterGroup[i].x) &&
+		(monsterGroup[i].x + 32 >= hero.x) &&
+		(hero.y + 32 >= monsterGroup[i].y) &&
+		(monsterGroup[i].y + 32 >= hero.y))
 		{
 			//console.log(monsterGroup[i].x + "  " + monsterGroup[i].y);
 			//++monsterCaught;
-		return true;			
-	}
+			return true;			
+		}
 	}
 };
 
