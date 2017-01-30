@@ -2,6 +2,7 @@
  *  Update:
  *  1. add shot for the hero
  *  2. add the point for hitting of the monster and missing of the monster. 
+ *  3. delete the diffculty level
  *  fix:
  *  1. At the first time hero is not in the canvas, because the heroImage has not been loaded.
  */
@@ -42,6 +43,14 @@ monsterImage.onload = function () {
 };
 monsterImage.src = "images/monster.png";
 
+// Monster boss image
+var monsterBossReady = false;
+var monsterBossImage = new Image();
+monsterBossImage.onload = function () {
+	monsterBossReady = true;
+};
+monsterBossImage.src = "images/monsterBoss.png";
+
 // Bullets image
 var bulletReady = false;
 var bulletImage = new Image();
@@ -49,6 +58,13 @@ bulletImage.onload = function () {
 	bulletReady = true;
 };
 bulletImage.src = "images/bullet.png";
+
+var bulletFromMonsterReady = false;
+var bulletFromMonsterImage = new Image();
+bulletFromMonsterImage.onload = function () {
+	bulletFromMonsterReady = true;
+};
+bulletFromMonsterImage.src = "images/bulletFromMonster.png";
 
 // Boom of monster image
 var boomOfMonsterReady = false;
@@ -69,10 +85,11 @@ var hero = {
 
 // Bullet
 var bulletsGroup = [];
+var bulletsFromMonster = [];
 var lastBulletAppearTime;
 var bulletAppearFrequency = 80; // if the space bar is being pressed, bullet should come every 100 millisec.
 function bullet(positionX, positionY) {
-	this.speed = 250;
+	this.speed = 150;
 	this.x = positionX;
 	this.y = positionY;
 }
@@ -91,7 +108,8 @@ function monster(monsterSpeed) {
 var monsterCaught = 0;
 var monsterMissed = 0;
 var monsterNumber = 0;
-var monsterAppearFrequency = 3000;
+var monsterBossAppear = false;
+var monsterAppearFrequency = 5000;
 
 // Boom of monster
 var boomOfMonsterGroup = [];
@@ -115,44 +133,6 @@ addEventListener("keyup", function (event) {
 	delete buttonStates[event.keyCode];
 }, false);
 
-(function () {
-	var difficultyList = document.getElementById("difficulty");
-	
-	difficultyList.addEventListener("click", function(event) {
-		var targetID = event.target.id;
-		
-		switch(targetID) {
-		case "easy":
-			monsterSpeed = 40;
-			monsterAppearFrequency = 1000;
-			reset();
-			main();
-			break;
-				
-		case "normal":
-			monsterSpeed = 60;
-			monsterAppearFrequency = 500;
-			reset();
-			main();
-			break;
-				
-		case "difficult":
-			monsterSpeed = 80;
-			monsterAppearFrequency = 300;
-			reset();
-			main();
-			break;
-				
-		case "impossible":
-			monsterSpeed = 120;
-			monsterAppearFrequency = 100;
-			reset();
-			main();
-			break;
-			
-		}
-	}, false);
-})();
 
 // update the position of hero and goblins, calculate the touch and the number of monster
 var updatePosition = function () {
@@ -188,23 +168,36 @@ var updatePosition = function () {
 		return m.y <= 800 + 32;
 	});	
 	
-		
+    /** 
+	 * Update the monsters position
+	 */
+	
+	if (monsterBossAppear) {
+	
+	}
+	
 	/** 
 	 * Update the bullets position
 	 */
-	if (32 in buttonStates) {		
+	if (32 in buttonStates) {			
 		createBullets();
 	}
 	
-	// remove the bullets, which not in the canvas
+	// remove the bullets of the hero, which not in the canvas
 	bulletsGroup = bulletsGroup.filter( function (b) {
 		b.y = b.y - b.speed * elapsed;
 		return b.y + 6 >= 0;
 	});
 	
+	// remove the bullets of the monster, which not in the canvas
+	bulletsFromMonster = bulletsFromMonster.filter( function (b) {
+		b.y = b.y + b.speed * elapsed;
+		return b.y - 6 <= 800;
+	});	
+	
 	// check the hit and remove the hit monster and bullet
-	for (i = 0, bulletsGroupLen = bulletsGroup.length; i < bulletsGroupLen; i++) {
-		for (var j = 0, monsterGroupLen = monsterGroup.length; j < monsterGroupLen; j++) {
+	for (i = 0, bulletsGroup.length; i < bulletsGroup.length; i++) {
+		for (var j = 0, monsterGroupLen = monsterGroup.length; j < monsterGroupLen; j++) {       
 			if ((monsterGroup[j]) &&
 			(bulletsGroup[i].x + 6 >= monsterGroup[j].x) &&
 			(monsterGroup[j].x + 32 >= bulletsGroup[i].x) &&
@@ -213,7 +206,7 @@ var updatePosition = function () {
 			{				
 				boomOfMonsterGroup.push(new boomOfMonster(monsterGroup[j].x, monsterGroup[j].y, (Date.now())));
 				monsterGroup[j] = null;
-				monsterCaught++;
+				monsterCaught++; // add the number of hit
 				delete bulletsGroup[i];
 				break;
 			}
@@ -230,20 +223,28 @@ var updatePosition = function () {
 		return m !== null;
 	});
 
-	
+	// the number of the missing monster
 	monsterMissed = monsterNumber - monsterGroup.length - monsterCaught;
 	
-	if (monsterTouchHeroCheck())
+	if (monsterTouchHeroCheck() || bulletTouchHeroCheck())
 		reset(monsterSpeed);
 };
 
-var createBullets = function () {
-	var distanceOfBulletAppearTime = (Date.now() - lastBulletAppearTime);
-	//console.log("elapsed: " + distanceOfBulletAppearTime);
-	if (distanceOfBulletAppearTime > bulletAppearFrequency) {
-		var bulletNew = new bullet(hero.x + 13, hero.y);
-		bulletsGroup.push(bulletNew);
-		lastBulletAppearTime = Date.now();
+var createBullets = function (o) {
+	var bulletNew;
+	if (o instanceof monster) {
+	// Create bullets for monster
+		bulletNew = new bullet(o.x + 12, o.y + 32);
+		bulletsFromMonster.push(bulletNew);
+	} else { 
+	// Create bullets for hero
+		var distanceOfBulletAppearTime = (Date.now() - lastBulletAppearTime);
+		//console.log("elapsed: " + distanceOfBulletAppearTime);
+		if (distanceOfBulletAppearTime > bulletAppearFrequency) {
+			bulletNew = new bullet(hero.x + 13, hero.y);
+			bulletsGroup.push(bulletNew);
+			lastBulletAppearTime = Date.now();
+		}
 	}		
 };
 
@@ -251,7 +252,7 @@ var createBullets = function () {
 var monsterTouchHeroCheck = function () {
 	for (var i = 0; i < monsterGroup.length; i ++) {
 		if ((hero.x + 32 >= monsterGroup[i].x) &&
-		(monsterGroup[i].x + 32 >= hero.x) &&
+		(monsterGroup[i].x + 30 >= hero.x) &&
 		(hero.y + 32 >= monsterGroup[i].y) &&
 		(monsterGroup[i].y + 32 >= hero.y))
 		{
@@ -261,6 +262,19 @@ var monsterTouchHeroCheck = function () {
 		}
 	}
 };
+
+var bulletTouchHeroCheck = function () {
+	for (var i = 0; i < bulletsFromMonster.length; i++) {
+		if ((hero.x + 32 >= bulletsFromMonster[i].x) &&
+		(bulletsFromMonster[i].x + 6 >= hero.x) &&
+		(hero.y + 32 >= bulletsFromMonster[i].y) &&
+		(bulletsFromMonster[i].y + 6 >= hero.y))
+		{
+			return true;			
+		}	    
+	}
+};
+
 
 // Draw or redraw everything
 var render = function () {
@@ -278,9 +292,9 @@ var render = function () {
 	if (boomOfMonsterReady) {
 		for (var boomNum = 0, boomNumLen = boomOfMonsterGroup.length; boomNum < boomNumLen; boomNum++) {
 			if ((Date.now() - boomOfMonsterGroup[boomNum].hitTime) < 70) {
-				console.log("Time:  " + (Date.now() - boomOfMonsterGroup[boomNum].hitTime));
+				//console.log("Time:  " + (Date.now() - boomOfMonsterGroup[boomNum].hitTime));
 				ctx.drawImage(boomOfMonsterImage, boomOfMonsterGroup[boomNum].x, boomOfMonsterGroup[boomNum].y, 30,32);
-		    }
+			}
 		}		
 	}
 
@@ -291,6 +305,13 @@ var render = function () {
 	if (bulletReady && (bulletsGroup.length > 0)) {
 		for (var bulletNum = 0, bulletsGroupLen = bulletsGroup.length; bulletNum < bulletsGroupLen; bulletNum++) {
 			ctx.drawImage(bulletImage, bulletsGroup[bulletNum].x, bulletsGroup[bulletNum].y);
+		}
+	}
+		
+	if (bulletFromMonsterReady && (bulletsFromMonster.length > 0)) {
+		for (var bulletFromMonstNum = 0; bulletFromMonstNum < bulletsFromMonster.length; bulletFromMonstNum++) 
+		{
+			ctx.drawImage(bulletFromMonsterImage, bulletsFromMonster[bulletFromMonstNum].x, bulletsFromMonster[bulletFromMonstNum].y);
 		}
 	}
 
@@ -304,8 +325,7 @@ var render = function () {
 
 var reset = function () {
 	hero.x = canvas.width / 2 - 16;  // instead of heroImage.weight, because the image has not been loaded.
-	hero.y = canvas.height - 232; // instead of heroImage.height, because the image has not been loaded.
-	//console.log("hero.x: " + hero.x + "   hero.y: " + hero.y + "   heroImage.height: " + heroImage.height);
+	hero.y = canvas.height - 232; // instead of heroImage.height, because the image has not been loaded.	
 	bulletsGroup.length = 0;
 	
 	monsterGroup.length = 0;  // set back the number of monster 	
@@ -314,18 +334,34 @@ var reset = function () {
 	monsterNumber = 1;  // Set the monster number from beginning again
 	monsterCaught = 0;
 	monsterMissed = 0;
+	bulletsFromMonster.length = 0;
 	boomOfMonsterGroup.length = 0;
 };
 
+// create the monster and call the createBullets
 var createMonster = function () {
 	var temp = (Date.now() - this.lastMonsterAppearTime);
 	//console.log("elapsed: " + temp);
-	if (temp > monsterAppearFrequency) {
-	    var monsterNew = new monster(monsterSpeed);
+	if ((temp > monsterAppearFrequency) && (monsterNumber < 20)){
+		var monsterNew = new monster(monsterSpeed);
+		createBullets.call(monsterNew, monsterNew);
 		monsterGroup.push(monsterNew);
 		this.lastMonsterAppearTime = Date.now();
 		monsterNumber++;
-	}		
+		
+		// Create new bullets for the existing monsters
+		for (var existingMonsterNum = 0, existingMonsterLen = monsterGroup.length -1; existingMonsterNum < existingMonsterLen; existingMonsterNum++)
+		{
+			createBullets(monsterGroup[existingMonsterNum]);
+		}
+	}	
+
+    // Create monster boss
+	if ((monsterNumber == 20) && (monsterGroup.length == 0) && (monsterBossReady == true)) {
+		var monsterBoss = new monster(monsterSpeed);
+		monsterBoss.x = 192;
+		monsterBossAppear = true;
+	}	
 };
 
 var main = function () {
