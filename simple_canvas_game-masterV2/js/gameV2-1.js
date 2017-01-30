@@ -119,14 +119,24 @@ function boomOfMonster (x, y, hitTime) {
 	this.hitTime = hitTime;
 }
 
+var startGame = false;
+var lastUpdateTime;
+var lastMonsterAppearTime;
 // handle user input
 var buttonStates = {};
 
 addEventListener("keydown", function (event) {
 	buttonStates[event.keyCode] = true;
-	if (event.keyCode === 32)
-		//console.log(lastBulletAppearTime);
+	if (event.keyCode === 32) {
 		lastBulletAppearTime = Date.now();
+	}
+	if ((event.keyCode === 83) && (startGame ==false)) {
+		startGame = true;
+		this.lastUpdateTime = Date.now();
+		this.lastMonsterAppearTime = Date.now();
+		reset();
+		main();
+	}		
 }, false);
 
 addEventListener("keyup", function (event) {
@@ -173,7 +183,7 @@ var updatePosition = function () {
 	 */
 	
 	if (monsterBossAppear) {
-	
+		// todo
 	}
 	
 	/** 
@@ -371,8 +381,18 @@ var main = function () {
 	requestAnimationFrame(main);
 };
 
-var lastUpdateTime = Date.now();
-var lastMonsterAppearTime = Date.now();
+var init = function () {
+	if (bgReady) {
+		ctx.drawImage(bgImage, 0, 0);
+		ctx.fillStyle = "rgb(250, 250, 250)";
+		ctx.font = "24px Helvetica";
+		ctx.textAlign = "start";
+		ctx.textBaseline = "top";		
+		ctx.fillText("Press spacebar to shoot the monster.", 32, 150);
+		ctx.fillText("Move the hero with the arrows", 32, 200);
+		ctx.fillText("Press 's' to start the game", 32, 250);
+	}
+	requestAnimationFrame(init);
+};
 
-reset();
-main();
+init();
