@@ -2,7 +2,7 @@
  *  Update:
  *  1. add shot for the hero
  *  2. add the point for hitting of the monster and missing of the monster. 
- *  3. delete the diffculty level
+ *  3. remove the diffculty level
  *  fix:
  *  1. At the first time hero is not in the canvas, because the heroImage has not been loaded.
  */
@@ -11,7 +11,7 @@
 var canvas = document.createElement("canvas");
 var ctx = canvas.getContext("2d");
 canvas.width = 512;
-canvas.height = 800;
+canvas.height = 480;
 canvas.style.left = "8px";
 canvas.style.top = "8px";
 canvas.style.position = "absolute";
@@ -23,7 +23,7 @@ var bgImage = new Image();
 bgImage.onload = function () {
 	bgReady = true;
 };
-bgImage.src = "images/backgroundBig.png";
+bgImage.src = "images/background.png";
 
 
 
@@ -87,7 +87,7 @@ var hero = {
 var bulletsGroup = [];
 var bulletsFromMonster = [];
 var lastBulletAppearTime;
-var bulletAppearFrequency = 80; // if the space bar is being pressed, bullet should come every 100 millisec.
+var bulletAppearFrequency = 50; // if the space bar is being pressed, bullet should come every 100 millisec.
 function bullet(positionX, positionY) {
 	this.speed = 150;
 	this.x = positionX;
@@ -109,7 +109,7 @@ var monsterCaught = 0;
 var monsterMissed = 0;
 var monsterNumber = 0;
 var monsterBossAppear = false;
-var monsterAppearFrequency = 5000;
+var monsterAppearFrequency = 1500;
 
 // Boom of monster
 var boomOfMonsterGroup = [];
@@ -147,7 +147,7 @@ var updatePosition = function () {
 	if ((38 in buttonStates) && (hero.y - distanceFromLastUpdate) > 0) // player goes up
 		hero.y = hero.y - distanceFromLastUpdate;
 
-	if ((40 in buttonStates) && (hero.y + distanceFromLastUpdate) < (800 - 32)) // player goes down
+	if ((40 in buttonStates) && (hero.y + distanceFromLastUpdate) < (480 - 32)) // player goes down
 		hero.y = hero.y + distanceFromLastUpdate;
 
 	if ((37 in buttonStates) && (hero.x - distanceFromLastUpdate) > 0) // player goes left
@@ -165,7 +165,7 @@ var updatePosition = function () {
 	
 	// remove the monster, which not in the canvas
 	monsterGroup = monsterGroup.filter ( function (m) {
-		return m.y <= 800 + 32;
+		return m.y <= 480 + 32;
 	});	
 	
     /** 
@@ -325,7 +325,7 @@ var render = function () {
 
 var reset = function () {
 	hero.x = canvas.width / 2 - 16;  // instead of heroImage.weight, because the image has not been loaded.
-	hero.y = canvas.height - 232; // instead of heroImage.height, because the image has not been loaded.	
+	hero.y = canvas.height - 32; // instead of heroImage.height, because the image has not been loaded.	
 	bulletsGroup.length = 0;
 	
 	monsterGroup.length = 0;  // set back the number of monster 	
