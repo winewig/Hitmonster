@@ -356,7 +356,7 @@ var reset = function () {
 var createMonster = function () {
 	var temp = (Date.now() - lastMonsterAppearTime);
 	//console.log("elapsed: " + temp);
-	if ((temp > monsterAppearFrequency) && (monsterNumber < 2)){
+	if ((temp > monsterAppearFrequency) && (monsterNumber < 20)){
 		var monsterNew = new monster(monsterSpeed);
 		createBullets.call(monsterNew, monsterNew);
 		monsterGroup.push(monsterNew);
@@ -371,7 +371,7 @@ var createMonster = function () {
 	}	
 
     // Create monster boss
-	if ((monsterNumber == 2) && (monsterGroup.length == 0) && (monsterBossAppear == false)) {
+	if ((monsterNumber == 20) && (monsterGroup.length == 0) && (monsterBossAppear == false)) {
 		monsterBoss = new monster(monsterSpeed);
 		monsterBoss.x = 192;
 		monsterBoss.y = 0;		
