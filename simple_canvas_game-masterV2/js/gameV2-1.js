@@ -109,6 +109,8 @@ var monsterCaught = 0;
 var monsterMissed = 0;
 var monsterNumber = 0;
 var monsterBossAppear = false;
+var monsterBoss;
+var monsterBossDisplacement = 0.1;
 var monsterAppearFrequency = 1500;
 
 // Boom of monster
@@ -132,8 +134,8 @@ addEventListener("keydown", function (event) {
 	}
 	if ((event.keyCode === 83) && (startGame ==false)) {
 		startGame = true;
-		this.lastUpdateTime = Date.now();
-		this.lastMonsterAppearTime = Date.now();
+		lastUpdateTime = Date.now();
+		lastMonsterAppearTime = Date.now();
 		reset();
 		main();
 	}		
@@ -146,10 +148,10 @@ addEventListener("keyup", function (event) {
 
 // update the position of hero and goblins, calculate the touch and the number of monster
 var updatePosition = function () {
-	var elapsed = (Date.now() - this.lastUpdateTime) / 1000; // the second from last update
+	var elapsed = (Date.now() - lastUpdateTime) / 1000; // the second from last update
 	//console.log("elapsed" + elapsed);
 	var distanceFromLastUpdate = hero.speed * elapsed; // the distance that player moves
-	this.lastUpdateTime = Date.now();	
+	lastUpdateTime = Date.now();	
 
 	/** 
 	 *  Update the hero position
@@ -183,7 +185,7 @@ var updatePosition = function () {
 	 */
 	
 	if (monsterBossAppear) {
-		// todo
+		monsterBoss.y += monsterBossDisplacement;		
 	}
 	
 	/** 
@@ -266,8 +268,6 @@ var monsterTouchHeroCheck = function () {
 		(hero.y + 32 >= monsterGroup[i].y) &&
 		(monsterGroup[i].y + 32 >= hero.y))
 		{
-			//console.log(monsterGroup[i].x + "  " + monsterGroup[i].y);
-			//++monsterCaught;
 			return true;			
 		}
 	}
@@ -325,6 +325,9 @@ var render = function () {
 		}
 	}
 
+	if ((monsterBossAppear == true) && (monsterBossReady == true)) {
+		ctx.drawImage(monsterBossImage, monsterBoss.x, monsterBoss.y);
+	}
 	// Score
 	ctx.fillStyle = "rgb(250, 250, 250)";
 	ctx.font = "24px Helvetica";
@@ -346,17 +349,18 @@ var reset = function () {
 	monsterMissed = 0;
 	bulletsFromMonster.length = 0;
 	boomOfMonsterGroup.length = 0;
+	monsterBossAppear = false;
 };
 
 // create the monster and call the createBullets
 var createMonster = function () {
-	var temp = (Date.now() - this.lastMonsterAppearTime);
+	var temp = (Date.now() - lastMonsterAppearTime);
 	//console.log("elapsed: " + temp);
-	if ((temp > monsterAppearFrequency) && (monsterNumber < 20)){
+	if ((temp > monsterAppearFrequency) && (monsterNumber < 2)){
 		var monsterNew = new monster(monsterSpeed);
 		createBullets.call(monsterNew, monsterNew);
 		monsterGroup.push(monsterNew);
-		this.lastMonsterAppearTime = Date.now();
+		lastMonsterAppearTime = Date.now();
 		monsterNumber++;
 		
 		// Create new bullets for the existing monsters
@@ -367,9 +371,10 @@ var createMonster = function () {
 	}	
 
     // Create monster boss
-	if ((monsterNumber == 20) && (monsterGroup.length == 0) && (monsterBossReady == true)) {
-		var monsterBoss = new monster(monsterSpeed);
+	if ((monsterNumber == 2) && (monsterGroup.length == 0) && (monsterBossAppear == false)) {
+		monsterBoss = new monster(monsterSpeed);
 		monsterBoss.x = 192;
+		monsterBoss.y = 0;		
 		monsterBossAppear = true;
 	}	
 };
