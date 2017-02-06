@@ -77,7 +77,8 @@ boomOfMonsterImage.src = "images/boomMonsterNew.png";
 /** 
  * Game objects
  */ 
- 
+
+var score = 0; 
 // Hero 
 var hero = {
 	speed: 200 // movement in pixels per second
@@ -184,7 +185,7 @@ var updatePosition = function () {
 	 * Update the monsters position
 	 */
 	
-	if (monsterBossAppear) {
+	if ((monsterBossAppear) && (monsterBoss.y <= 80)) {
 		monsterBoss.y += monsterBossDisplacement;		
 	}
 	
@@ -333,12 +334,14 @@ var render = function () {
 	ctx.font = "24px Helvetica";
 	ctx.textAlign = "start";
 	ctx.textBaseline = "top";
-	ctx.fillText("Goblins missed: " + monsterMissed + "   Goblins hit: " + monsterCaught, 32, 32);
+	score = monsterCaught * 5;
+	ctx.fillText("   Score: " + score, 32, 32);
+	//ctx.fillText("Goblins missed: " + monsterMissed + "   Goblins hit: " + monsterCaught, 32, 32);
 };
 
 var reset = function () {
 	hero.x = canvas.width / 2 - 16;  // instead of heroImage.weight, because the image has not been loaded.
-	hero.y = canvas.height - 32; // instead of heroImage.height, because the image has not been loaded.	
+	hero.y = canvas.height - 80; // instead of heroImage.height, because the image has not been loaded.	
 	bulletsGroup.length = 0;
 	
 	monsterGroup.length = 0;  // set back the number of monster 	
@@ -393,9 +396,9 @@ var init = function () {
 		ctx.font = "24px Helvetica";
 		ctx.textAlign = "start";
 		ctx.textBaseline = "top";		
-		ctx.fillText("Press spacebar to shoot the monster.", 32, 150);
-		ctx.fillText("Move the hero with the arrows", 32, 200);
-		ctx.fillText("Press 's' to start the game", 32, 250);
+		ctx.fillText("Press spacebar to shoot the monster.", 64, 150);
+		ctx.fillText("Move the hero with the arrows", 64, 200);
+		ctx.fillText("Press 's' to start the game", 64, 250);
 	}
 	requestAnimationFrame(init);
 };
