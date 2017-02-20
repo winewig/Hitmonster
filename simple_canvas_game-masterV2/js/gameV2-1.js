@@ -114,6 +114,8 @@ var monsterBoss;
 var monsterBossDisplacement = 0.1;
 var monsterAppearFrequency = 1500;
 
+var angle = 0;
+
 // Boom of monster
 var boomOfMonsterGroup = [];
 function boomOfMonster (x, y, hitTime) {
@@ -187,7 +189,7 @@ var updatePosition = function () {
 	
 	if ((monsterBossAppear) && (monsterBoss.y <= 80)) {
 		monsterBoss.y += monsterBossDisplacement;		
-	}
+	} 
 	
 	/** 
 	 * Update the bullets position
@@ -327,7 +329,16 @@ var render = function () {
 	}
 
 	if ((monsterBossAppear == true) && (monsterBossReady == true)) {
-		ctx.drawImage(monsterBossImage, monsterBoss.x, monsterBoss.y);
+		if (monsterBoss.y <= 80) {
+			ctx.drawImage(monsterBossImage, monsterBoss.x, monsterBoss.y);
+		} else {
+			ctx.save();
+			// run in circle
+			ctx.translate(192, 180);
+			ctx.drawImage(monsterBossImage, 100*Math.sin(angle*Math.PI/180), -100*Math.cos(angle*Math.PI/180));            			
+			angle += 0.6 ;
+			ctx.restore();
+		}		
 	}
 	// Score
 	ctx.fillStyle = "rgb(250, 250, 250)";
@@ -359,7 +370,7 @@ var reset = function () {
 var createMonster = function () {
 	var temp = (Date.now() - lastMonsterAppearTime);
 	//console.log("elapsed: " + temp);
-	if ((temp > monsterAppearFrequency) && (monsterNumber < 20)){
+	if ((temp > monsterAppearFrequency) && (monsterNumber < 2)){
 		var monsterNew = new monster(monsterSpeed);
 		createBullets.call(monsterNew, monsterNew);
 		monsterGroup.push(monsterNew);
@@ -374,7 +385,7 @@ var createMonster = function () {
 	}	
 
     // Create monster boss
-	if ((monsterNumber == 20) && (monsterGroup.length == 0) && (monsterBossAppear == false)) {
+	if ((monsterNumber == 2) && (monsterGroup.length == 0) && (monsterBossAppear == false)) {
 		monsterBoss = new monster(monsterSpeed);
 		monsterBoss.x = 192;
 		monsterBoss.y = 0;		
