@@ -135,6 +135,11 @@ addEventListener("keydown", function (event) {
 	if (event.keyCode === 32) {
 		lastBulletAppearTime = Date.now();
 	}
+	
+	/*
+	 * With key input 's' the game should start.
+	 * This key event calls the main method.
+	 */
 	if ((event.keyCode === 83) && (startGame ==false)) {
 		startGame = true;
 		lastUpdateTime = Date.now();
